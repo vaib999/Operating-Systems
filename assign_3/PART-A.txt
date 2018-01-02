@@ -1,0 +1,33 @@
+Producer is terminated so there is nothing to consume. The pipe is
+empty and when consumer tries to consume there is an error and no 
+value is read.
+
+When consumer is terminated the connection between producer and cosumer
+is broken and the value produced by producer cannot be read by any
+consumer.
+
+When multiple producers send value to one consumer all the values are 
+read by the consumer. But when the producers are many and the pipe
+storage limit is reached no further values can be sent to consumer
+via pipe. So some producers wait for consumer to read value from pipe.
+But even when the values are read the producers are not guaranteed to
+woken up. So they can be in sleep mode forever.
+
+When one producer sends value to multiple consumers then the values are
+read by all consumers. But it happens that there aren't enough values to 
+be read and some consumers go to sleep and are never woken up.
+
+When multiple producers and consumers are there if the producers send value
+that consumers are not able to read(overflow occurs) then some producers 
+stop producing but it happens that they are not woken up again.
+If there are less values to consume(underflow occurs) some consumers wait
+for values and they might wait forever as other consumer reads value. 
+
+For part-C we can make a character device in which producer will write
+value and from there consumer will read values. Semaphore will we used
+as we don't want to write anything to character device if buffer is
+full and we don't want anything to be read if the buffer is empty.
+Also through semaphore we can ensure that only one process can read 
+value or write value in buffer. So mutual exclusion of producer and 
+consumer is ensured and overflow as well as underflow conditions are
+also checked.
